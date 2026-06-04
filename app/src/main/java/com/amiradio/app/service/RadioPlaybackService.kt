@@ -246,9 +246,9 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
         exoPlayer.stop()
 
         val contentType = when {
-            station.streamUrl.contains(".m3u8") -> "application/x-mpegurl"
-            station.streamUrl.contains("aac")   -> "audio/aac"
-            else                                 -> "audio/mpeg"
+            station.streamUrl.contains(".m3u8")                  -> "application/x-mpegurl"
+            station.streamUrl.endsWith(".aac", ignoreCase = true) -> "audio/aac"
+            else                                                   -> "audio/mpeg"
         }
         val castMeta = MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK).apply {
             putString(MediaMetadata.KEY_TITLE, station.name)
