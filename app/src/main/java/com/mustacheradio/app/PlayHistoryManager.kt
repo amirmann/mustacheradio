@@ -1,4 +1,4 @@
-package com.amiradio.app
+package com.mustacheradio.app
 
 import android.content.Context
 import android.content.SharedPreferences

@@ -4,19 +4,17 @@ plugins {
 }
 
 android {
-    namespace 'com.amiradio.app'
+    namespace 'com.mustacheradio.app'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.amiradio.app"
+        applicationId "com.mustacheradio.app"
         minSdk 24
         targetSdk 34
-        versionCode 41
-        versionName "6.0.1"
+        versionCode 43
+        versionName "6.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        
-        setProperty("archivesBaseName", "AmiRadio-v${versionName}")
     }
 
     buildTypes {
@@ -28,22 +26,23 @@ android {
             applicationIdSuffix ".debug"
         }
     }
-    
+
+    // APK filename without variant suffix: MustacheRadio-v6.1.0.apk
     applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "AmiRadio-v${variant.versionName}-${variant.buildType.name}.apk"
+            outputFileName = "MustacheRadio-v${variant.versionName}.apk"
         }
     }
-    
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    
+
     kotlinOptions {
         jvmTarget = '17'
     }
-    
+
     buildFeatures {
         viewBinding true
     }
@@ -54,24 +53,24 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    
+
     // RecyclerView
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    
+
     // Media & ExoPlayer
     implementation 'androidx.media:media:1.7.0'
     implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
     implementation 'com.google.android.exoplayer:exoplayer-core:2.19.1'
     implementation 'com.google.android.exoplayer:exoplayer-hls:2.19.1'
     implementation 'com.google.android.exoplayer:extension-mediasession:2.19.1'
-    
+
     // Android Auto support
     implementation 'com.google.android.support:wearable:2.9.0'
 
     // Google Cast
     implementation 'com.google.android.gms:play-services-cast-framework:21.5.0'
     implementation 'androidx.mediarouter:mediarouter:1.7.0'
-    
+
     // Testing
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

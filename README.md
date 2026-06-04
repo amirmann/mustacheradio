@@ -1,4 +1,4 @@
-# AmiRadio
+# Mustache Radio
 
 Personal Israeli radio streaming app for Android.
 

@@ -1,6 +1,6 @@
-package com.amiradio.app
+package com.mustacheradio.app
 
-import com.amiradio.app.R
+import com.mustacheradio.app.R
 
 /**
  * Single source of truth for the radio station catalogue.

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Moustache Radio</string>
-    <string name="subtitle">Israeli Radio Stations · v2.8</string>
-    <string name="app_subtitle">Israeli Radio Stations · v2.8</string>
+    <string name="subtitle">Israeli Radio Stations</string>
+    <string name="app_subtitle">Israeli Radio Stations</string>
     <string name="now_playing">Now Playing</string>
     <string name="select_station">Select a station to start</string>
     <string name="station_icon">Station Icon</string>

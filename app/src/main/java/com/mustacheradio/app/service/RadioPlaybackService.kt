@@ -1,4 +1,4 @@
-package com.amiradio.app.service
+package com.mustacheradio.app.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -21,11 +21,11 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.media.MediaBrowserServiceCompat
-import com.amiradio.app.MainActivity
-import com.amiradio.app.PlayHistoryManager
-import com.amiradio.app.R
-import com.amiradio.app.RadioStation
-import com.amiradio.app.Stations
+import com.mustacheradio.app.MainActivity
+import com.mustacheradio.app.PlayHistoryManager
+import com.mustacheradio.app.R
+import com.mustacheradio.app.RadioStation
+import com.mustacheradio.app.Stations
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -43,7 +43,7 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
 
     companion object {
         private const val TAG = "RadioPlaybackService"
-        const val CHANNEL_ID    = "amiradio_playback_channel"
+        const val CHANNEL_ID    = "mustacheradio_playback_channel"
         const val NOTIFICATION_ID = 1
         const val MEDIA_ROOT_ID = "root"
         const val LIST_ROOT_ID  = "list"
@@ -243,6 +243,9 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
 
     private fun playOnCast(castSession: CastSession, station: RadioStation, id: String) {
         Log.d(TAG, "Casting: ${station.name}")
+        // Remove listener BEFORE stopping so the async onIsPlayingChanged(false) callback
+        // doesn't overwrite STATE_PLAYING after we set it below.
+        exoPlayer.removeListener(playerListener)
         exoPlayer.stop()
 
         val contentType = when {
@@ -253,7 +256,7 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
         val castMeta = MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK).apply {
             putString(MediaMetadata.KEY_TITLE, station.name)
             putString(MediaMetadata.KEY_SUBTITLE, station.description)
-            putString(MediaMetadata.KEY_ALBUM_ARTIST, "AmiRadio")
+            putString(MediaMetadata.KEY_ALBUM_ARTIST, "Mustache Radio")
         }
         val mediaInfo = MediaInfo.Builder(buildStreamUrl(station.streamUrl))
             .setStreamType(MediaInfo.STREAM_TYPE_LIVE)
@@ -261,10 +264,12 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
             .setMetadata(castMeta)
             .build()
 
+        // setPlayPosition is intentionally omitted: live streams don't support seeking,
+        // and setting position=0 causes the Cast receiver to stall on a failed seek.
         @Suppress("DEPRECATION")
         castSession.remoteMediaClient?.load(
             mediaInfo,
-            MediaLoadOptions.Builder().setAutoplay(true).setPlayPosition(0).build()
+            MediaLoadOptions.Builder().setAutoplay(true).build()
         )
 
         updateSessionMetadata(station, id)
@@ -301,6 +306,9 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
         try {
             val streamUrl = buildStreamUrl(station.streamUrl)
             Log.d(TAG, "[$id] Local stream: $streamUrl")
+            // Re-attach listener in case it was removed by a previous playOnCast call
+            exoPlayer.removeListener(playerListener)
+            exoPlayer.addListener(playerListener)
             exoPlayer.setMediaItem(MediaItem.fromUri(Uri.parse(streamUrl)))
             exoPlayer.prepare()
             exoPlayer.playWhenReady = true
@@ -463,7 +471,7 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("AmiRadio")
+            .setContentTitle("Mustache Radio")
             .setContentText("Radio service is running")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
@@ -483,7 +491,7 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
         notificationManager = PlayerNotificationManager.Builder(this, NOTIFICATION_ID, CHANNEL_ID)
             .setMediaDescriptionAdapter(object : PlayerNotificationManager.MediaDescriptionAdapter {
                 override fun getCurrentContentTitle(player: Player): CharSequence =
-                    mediaSession.controller.metadata?.getString(MediaMetadataCompat.METADATA_KEY_TITLE) ?: "AmiRadio"
+                    mediaSession.controller.metadata?.getString(MediaMetadataCompat.METADATA_KEY_TITLE) ?: "Mustache Radio"
 
                 override fun createCurrentContentIntent(player: Player): PendingIntent? =
                     PendingIntent.getActivity(

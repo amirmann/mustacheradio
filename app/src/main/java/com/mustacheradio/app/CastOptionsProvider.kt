@@ -1,4 +1,4 @@
-package com.amiradio.app
+package com.mustacheradio.app
 
 import android.content.Context
 import com.google.android.gms.cast.framework.CastOptions

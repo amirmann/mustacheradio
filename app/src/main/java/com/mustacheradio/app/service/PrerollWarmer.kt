@@ -1,4 +1,4 @@
-package com.amiradio.app.service
+package com.mustacheradio.app.service
 
 import android.content.Context
 import android.net.Uri

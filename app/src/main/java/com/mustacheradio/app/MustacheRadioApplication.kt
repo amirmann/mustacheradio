@@ -1,13 +1,13 @@
-package com.amiradio.app
+package com.mustacheradio.app
 
 import android.app.Application
 import android.util.Log
 import com.google.android.gms.cast.framework.CastContext
 
-class AmiRadioApplication : Application() {
+class MustacheRadioApplication : Application() {
 
     companion object {
-        private const val TAG = "AmiRadioApplication"
+        private const val TAG = "MustacheRadioApplication"
     }
 
     override fun onCreate() {

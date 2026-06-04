@@ -1,4 +1,4 @@
-package com.amiradio.app
+package com.mustacheradio.app
 
 import android.content.ComponentName
 import android.content.Context
@@ -15,8 +15,8 @@ import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.amiradio.app.databinding.ActivityMainBinding
-import com.amiradio.app.service.RadioPlaybackService
+import com.mustacheradio.app.databinding.ActivityMainBinding
+import com.mustacheradio.app.service.RadioPlaybackService
 import com.google.android.gms.cast.framework.CastButtonFactory
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.CastSession

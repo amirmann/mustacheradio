@@ -1,4 +1,4 @@
-package com.amiradio.app
+package com.mustacheradio.app
 
 import androidx.annotation.DrawableRes
 

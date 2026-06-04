@@ -1,9 +1,9 @@
-package com.amiradio.app
+package com.mustacheradio.app
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.amiradio.app.databinding.ItemRadioStationBinding
+import com.mustacheradio.app.databinding.ItemRadioStationBinding
 
 class RadioStationAdapter(
     private val stations: List<RadioStation>,
