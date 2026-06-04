@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaLoadOptions
 import com.google.android.gms.cast.MediaMetadata
+import com.google.android.gms.cast.MediaStatus
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.cast.framework.SessionManagerListener
@@ -180,14 +181,32 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
         override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) = playStation(mediaId)
 
         override fun onPlay() {
-            getCastSession()?.remoteMediaClient?.play()
-                ?: run { exoPlayer.playWhenReady = true }
+            val castSession = getCastSession()
+            if (castSession != null) {
+                val client = castSession.remoteMediaClient
+                val playerState = client?.mediaStatus?.playerState ?: MediaStatus.PLAYER_STATE_IDLE
+                if (playerState == MediaStatus.PLAYER_STATE_PAUSED) {
+                    client?.play()
+                } else {
+                    // Live stream was stopped — reload it
+                    lastRequestedMediaId?.let { id ->
+                        Stations.BY_ID[id]?.let { playOnCast(castSession, it, id) }
+                    }
+                }
+            } else {
+                exoPlayer.playWhenReady = true
+            }
             updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
         }
 
         override fun onPause() {
-            getCastSession()?.remoteMediaClient?.pause()
-                ?: run { exoPlayer.playWhenReady = false }
+            val castSession = getCastSession()
+            if (castSession != null) {
+                // Live streams don't support Cast pause; stop so play can reload cleanly
+                castSession.remoteMediaClient?.stop()
+            } else {
+                exoPlayer.playWhenReady = false
+            }
             updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
         }
 
@@ -264,13 +283,29 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
             .setMetadata(castMeta)
             .build()
 
+        val remoteClient = castSession.remoteMediaClient ?: run {
+            Log.w(TAG, "remoteMediaClient is null, cannot cast")
+            return
+        }
+
+        // Always stop first so the Cast receiver is in a clean IDLE state before loading.
+        // Without this, loading a new stream while the receiver is still active (or
+        // transitioning) causes certain CDN streams (e.g. 102FM) to silently not play.
+        // This matches exactly what the pause→play cycle does, which is known to work.
+        @Suppress("DEPRECATION")
+        fun doLoad() {
+            Log.d(TAG, "Cast: loading ${station.name}")
+            remoteClient.load(mediaInfo, MediaLoadOptions.Builder().setAutoplay(true).build())
+                ?.setResultCallback { result ->
+                    if (!result.status.isSuccess) {
+                        Log.w(TAG, "Cast load failed (${result.status.statusCode}): ${result.status.statusMessage}")
+                    }
+                }
+        }
+
         // setPlayPosition is intentionally omitted: live streams don't support seeking,
         // and setting position=0 causes the Cast receiver to stall on a failed seek.
-        @Suppress("DEPRECATION")
-        castSession.remoteMediaClient?.load(
-            mediaInfo,
-            MediaLoadOptions.Builder().setAutoplay(true).build()
-        )
+        remoteClient.stop()?.setResultCallback { doLoad() } ?: doLoad()
 
         updateSessionMetadata(station, id)
         updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
