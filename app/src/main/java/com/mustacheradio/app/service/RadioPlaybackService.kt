@@ -267,7 +267,7 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
         exoPlayer.removeListener(playerListener)
         exoPlayer.stop()
 
-        val contentType = when {
+        val contentType = station.castContentType ?: when {
             station.streamUrl.contains(".m3u8")                  -> "application/x-mpegurl"
             station.streamUrl.endsWith(".aac", ignoreCase = true) -> "audio/aac"
             else                                                   -> "audio/mpeg"
@@ -288,24 +288,13 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
             return
         }
 
-        // Always stop first so the Cast receiver is in a clean IDLE state before loading.
-        // Without this, loading a new stream while the receiver is still active (or
-        // transitioning) causes certain CDN streams (e.g. 102FM) to silently not play.
-        // This matches exactly what the pause→play cycle does, which is known to work.
+        // Stop before loading so the Cast receiver is in a clean state.
+        // The Cast protocol queues commands sequentially, so the receiver will process
+        // STOP then LOAD in order — no callback needed.
+        // setPlayPosition is intentionally omitted: live streams don't support seeking.
+        remoteClient.stop()
         @Suppress("DEPRECATION")
-        fun doLoad() {
-            Log.d(TAG, "Cast: loading ${station.name}")
-            remoteClient.load(mediaInfo, MediaLoadOptions.Builder().setAutoplay(true).build())
-                ?.setResultCallback { result ->
-                    if (!result.status.isSuccess) {
-                        Log.w(TAG, "Cast load failed (${result.status.statusCode}): ${result.status.statusMessage}")
-                    }
-                }
-        }
-
-        // setPlayPosition is intentionally omitted: live streams don't support seeking,
-        // and setting position=0 causes the Cast receiver to stall on a failed seek.
-        remoteClient.stop()?.setResultCallback { doLoad() } ?: doLoad()
+        remoteClient.load(mediaInfo, MediaLoadOptions.Builder().setAutoplay(true).build())
 
         updateSessionMetadata(station, id)
         updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)

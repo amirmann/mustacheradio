@@ -11,8 +11,8 @@ android {
         applicationId "com.mustacheradio.app"
         minSdk 24
         targetSdk 34
-        versionCode 44
-        versionName "6.2.0"
+        versionCode 45
+        versionName "6.3.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -27,7 +27,7 @@ android {
         }
     }
 
-    // APK filename without variant suffix: MustacheRadio-v6.2.0.apk
+    // APK filename without variant suffix: MustacheRadio-v6.3.0.apk
     applicationVariants.all { variant ->
         variant.outputs.all {
             outputFileName = "MustacheRadio-v${variant.versionName}.apk"
