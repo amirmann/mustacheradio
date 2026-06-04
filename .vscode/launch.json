@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "android",
+            "request": "launch",
+            "name": "Launch Amiradio",
+            "appSrcRoot": "${workspaceFolder}/app/src/main",
+            "apkFile": "${workspaceFolder}/app/build/outputs/apk/debug/app-debug.apk",
+            "adbPath": "${env:ANDROID_HOME}/platform-tools/adb"
+        },
+        {
+            "type": "android",
+            "request": "attach",
+            "name": "Attach to Process",
+            "appSrcRoot": "${workspaceFolder}/app/src/main",
+            "adbPath": "${env:ANDROID_HOME}/platform-tools/adb",
+            "processId": "${command:pickAndroidProcess}"
+        }
+    ]
+}

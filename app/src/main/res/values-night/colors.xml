@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark mode colors -->
+    <color name="primary">#4DB6AC</color>
+    <color name="primary_dark">#00897B</color>
+    <color name="accent">#80DEEA</color>
+    <color name="background">#121212</color>
+    <color name="surface">#1E1E1E</color>
+    <color name="primary_text">#FFFFFF</color>
+    <color name="secondary_text">#B0B0B0</color>
+    <color name="divider">#2E2E2E</color>
+    <color name="card_background">#1E1E1E</color>
+    <!-- Settings toolbar: dark so white text is visible -->
+    <color name="toolbar_background">#1A1A2E</color>
+    <!-- Main header: dark to match the dark banner -->
+    <color name="header_background">#1A1E25</color>
+</resources>

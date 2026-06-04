@@ -1,0 +1,14 @@
+{
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.home": "${env:JAVA_HOME}",
+    "files.exclude": {
+        "**/.gradle": true,
+        "**/.idea": true,
+        "**/build": true,
+        "**/*.iml": true
+    },
+    "files.watcherExclude": {
+        "**/.gradle/**": true,
+        "**/build/**": true
+    }
+}

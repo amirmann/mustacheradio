@@ -1,0 +1,20 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Circular arrow pointing clockwise -->
+    <path
+        android:fillColor="@color/primary"
+        android:pathData="M12,4 L12,1 L17,5 L12,9 L12,6 C8.69,6 6,8.69 6,12 C6,13.48 6.52,14.83 7.4,15.88 L8.83,14.45 C8.31,13.69 8,12.88 8,12 C8,9.79 9.79,8 12,8 L12,4 Z" />
+    <!-- "30" text -->
+    <path
+        android:fillColor="@color/primary"
+        android:pathData="M8,17 L8,20 L10,20 L10,19 L9,19 L9,18 L10,18 L10,17 Z M11,17 L11,20 L13,20 L13,17 Z M12,18 L12,19 L12,18 Z" />
+    <!-- Arc indicator -->
+    <path
+        android:strokeColor="@color/primary"
+        android:strokeWidth="1.5"
+        android:fillColor="#00000000"
+        android:pathData="M14,16 A6,6 0 1,1 10,16" />
+</vector>
