@@ -41,8 +41,9 @@ class PrerollWarmer(private val context: Context) {
 
         /** Only StreamTheWorld stations need this treatment. */
         val STATIONS = mapOf(
-            "88fm"   to "https://playerservices.streamtheworld.com/api/livestream-redirect/KAN_88.mp3",
-            "kanbet" to "https://playerservices.streamtheworld.com/api/livestream-redirect/KAN_BET.mp3"
+            "88fm"     to "https://playerservices.streamtheworld.com/api/livestream-redirect/KAN_88.mp3",
+            "kanbet"   to "https://playerservices.streamtheworld.com/api/livestream-redirect/KAN_BET.mp3",
+            "kangimel" to "https://playerservices.streamtheworld.com/api/livestream-redirect/KAN_GIMMEL.mp3"
         )
     }
 

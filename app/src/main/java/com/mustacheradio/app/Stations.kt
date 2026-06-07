@@ -60,6 +60,13 @@ object Stations {
             iconRes     = R.drawable.ic_103fm
         ),
         RadioStation(
+            id          = "kangimel",
+            name        = "כאן גימל",
+            description = "Israeli Music — רשת ג'",
+            streamUrl   = "https://playerservices.streamtheworld.com/api/livestream-redirect/KAN_GIMMEL.mp3",
+            iconRes     = R.drawable.ic_kangimel
+        ),
+        RadioStation(
             id              = "102fm",
             name            = "102FM - Radio Tel Aviv",
             description     = "Tel Aviv's Music Station",

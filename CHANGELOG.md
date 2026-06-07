@@ -2,6 +2,10 @@
 
 All notable changes to Mustache Radio are documented here.
 
+## [6.5.0] — 2026-06-07
+### Added
+- **כאן גימל** (Kan Gimel / רשת ג') — Israeli-music-only station; included in the pre-roll warmer so no ads on tap.
+
 ## [6.4.0] — 2026-06-07
 ### Fixed
 - **88FM intermittent start**: warm-up (promoted) player now re-enables audio focus handling when it becomes the main player; new warm-up cycle is delayed 10 s after promotion to prevent simultaneous connections to StreamTheWorld that confused the CDN.
