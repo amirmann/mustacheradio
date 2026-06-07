@@ -80,3 +80,12 @@ vcs.xml
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# IDE
+.vscode/
+
+# Source logo assets (not part of the build)
+logos/
+
+# Stale screenshot originals
+screenshorts/
