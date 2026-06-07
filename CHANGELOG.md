@@ -2,6 +2,25 @@
 
 All notable changes to Mustache Radio are documented here.
 
+## [6.7.0] — 2026-06-07
+### Added
+- **What's Playing — Galatz & Galgalatz**: Both GLZ stations now display live programme/song info. The implementation loads each station's homepage in an invisible WebView (bypassing Incapsula bot protection), waits for Angular to render, then extracts the current programme via DOM selectors:
+  - Galgalatz: `.current-song` element → current song name (e.g. *Red Hot Chili Peppers - Under The Bridge*)
+  - Galatz: body-text pattern `לחצו כאן <SHOW> חי` → current show name (e.g. *רינו צרור*)
+- **What's Playing — bottom bar**: the "now playing" card in MainActivity now shows a subtitle line (`♪ Show – Artist – Song`) for the currently playing station whenever the feature is on.
+- **What's Playing — lock screen / notification**: `RadioPlaybackService` now updates the `MediaSession` subtitle (shown on the lock screen and in the notification) in real time when `NowPlayingManager` receives new data for the currently playing station, via a shared in-process listener.
+
+### Fixed
+- **WebView audio focus**: invisible WebViews used for KAN and GLZ fetching now explicitly set `mediaPlaybackRequiresUserGesture = true` and mute/pause all `<audio>`/`<video>` elements via JS before data extraction, preventing the embedded radio player from stealing audio focus and stopping playback.
+- **WebView container leak**: the invisible `FrameLayout` container was previously left attached to the Activity decor view after each fetch; it is now removed along with the WebView on cleanup.
+- **NowPlayingManager shared cache**: `NowPlayingManager.sharedCache` (companion object `ConcurrentHashMap`) lets `RadioPlaybackService` read cached now-playing data without IPC, even when the Activity is not in the foreground.
+
+## [6.6.0] — 2026-06-07
+### Added
+- **What's Playing** — optional feature (Settings → "What's Playing", default OFF).
+  - When ON: the station list shows what's currently playing (song title or show name) for every station, polled every 30 seconds from each stream's ICY in-band metadata.
+  - When ON: the currently playing station updates its notification and Android Auto subtitle in real time as ICY metadata arrives via ExoPlayer.
+
 ## [6.5.0] — 2026-06-07
 ### Added
 - **כאן גימל** (Kan Gimel / רשת ג') — Israeli-music-only station; included in the pre-roll warmer so no ads on tap.

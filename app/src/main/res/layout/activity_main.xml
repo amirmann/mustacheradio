@@ -113,7 +113,19 @@
 
             </LinearLayout>
 
-            <!-- Row 2: Volume label + horizontal seekbar -->
+            <!-- Row 2: What's playing subtitle (hidden when feature is off or no data) -->
+            <TextView
+                android:id="@+id/nowPlayingSubText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="12sp"
+                android:textColor="@color/secondary_text"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:visibility="gone" />
+
+            <!-- Row 3: Volume label + horizontal seekbar -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

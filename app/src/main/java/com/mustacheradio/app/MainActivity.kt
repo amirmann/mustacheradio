@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var radioAdapter: RadioStationAdapter
     private lateinit var audioManager: AudioManager
     private lateinit var playHistoryManager: PlayHistoryManager
+    private lateinit var nowPlayingManager: NowPlayingManager
 
     // Updates the Cast banner and volume slider whenever a Cast session changes state
     private val castSessionListener = object : SessionManagerListener<CastSession> {
@@ -75,6 +76,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val nowPlayingListener = object : NowPlayingManager.Listener {
+        override fun onNowPlayingUpdated(stationId: String, text: String?) {
+            radioAdapter.updateNowPlaying(stationId, text)
+            // Also update the bottom-bar subtitle when this is the currently playing station
+            val currentId = MediaControllerCompat.getMediaController(this@MainActivity)
+                ?.metadata?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+            if (stationId == currentId) {
+                updateBottomBarSubText(text)
+            }
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // Lifecycle
     // ─────────────────────────────────────────────────────────────────────────
@@ -95,6 +108,9 @@ class MainActivity : AppCompatActivity() {
 
         audioManager       = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         playHistoryManager = PlayHistoryManager(this)
+        nowPlayingManager  = NowPlayingManager()
+        nowPlayingManager.setListener(nowPlayingListener)
+        nowPlayingManager.setActivity(this)
 
         try {
             CastButtonFactory.setUpMediaRouteButton(this, binding.mediaRouteButton)
@@ -128,6 +144,11 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) { /* Cast not available */ }
     }
 
+    override fun onResume() {
+        super.onResume()
+        applyNowPlayingSetting()
+    }
+
     override fun onStop() {
         super.onStop()
         MediaControllerCompat.getMediaController(this)?.unregisterCallback(controllerCallback)
@@ -137,6 +158,41 @@ class MainActivity : AppCompatActivity() {
                 .sessionManager
                 .removeSessionManagerListener(castSessionListener, CastSession::class.java)
         } catch (e: Exception) { /* Cast not available */ }
+        nowPlayingManager.stop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        nowPlayingManager.setActivity(null)
+        nowPlayingManager.release()
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Now-playing feature
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun applyNowPlayingSetting() {
+        val enabled = getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+            .getBoolean("whats_playing", false)
+
+        radioAdapter.setShowNowPlaying(enabled)
+
+        if (enabled) {
+            // Pre-populate adapter with any data already in cache
+            val cached = Stations.ALL
+                .mapNotNull { s -> nowPlayingManager.getNowPlaying(s.id)?.let { s.id to it } }
+                .toMap()
+            if (cached.isNotEmpty()) radioAdapter.setNowPlayingData(cached)
+
+            nowPlayingManager.start()
+            // Restore bottom-bar subtitle for the currently playing station
+            val currentId = MediaControllerCompat.getMediaController(this)
+                ?.metadata?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+            updateBottomBarSubText(currentId?.let { nowPlayingManager.getNowPlaying(it) })
+        } else {
+            nowPlayingManager.stop()
+            updateBottomBarSubText(null)
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -192,6 +248,8 @@ class MainActivity : AppCompatActivity() {
         refreshStationListOrder()
         binding.nowPlayingText.text = station.name
         binding.nowPlayingIcon.setImageResource(station.iconRes)
+        // Show any cached now-playing for this station immediately
+        updateBottomBarSubText(nowPlayingManager.getNowPlaying(station.id))
 
         val controller = MediaControllerCompat.getMediaController(this)
         if (controller == null) {
@@ -203,10 +261,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshStationListOrder() {
-        radioAdapter = RadioStationAdapter(
-            playHistoryManager.sortStationsByLastPlayed(Stations.ALL)
-        ) { playStation(it) }
-        binding.recyclerView.adapter = radioAdapter
+        val sorted = playHistoryManager.sortStationsByLastPlayed(Stations.ALL)
+        radioAdapter.updateStations(sorted)
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -223,6 +279,17 @@ class MainActivity : AppCompatActivity() {
         binding.nowPlayingText.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
         val mediaId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
         Stations.BY_ID[mediaId]?.let { binding.nowPlayingIcon.setImageResource(it.iconRes) }
+        updateBottomBarSubText(mediaId?.let { nowPlayingManager.getNowPlaying(it) })
+    }
+
+    private fun updateBottomBarSubText(text: String?) {
+        val prefs = getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        if (text != null && prefs.getBoolean("whats_playing", false)) {
+            binding.nowPlayingSubText.text = "♪ $text"
+            binding.nowPlayingSubText.visibility = android.view.View.VISIBLE
+        } else {
+            binding.nowPlayingSubText.visibility = android.view.View.GONE
+        }
     }
 
     private fun updateCastBanner(isCasting: Boolean) {

@@ -26,7 +26,7 @@ class SettingsActivity : AppCompatActivity() {
         val darkModeSwitch = findViewById<SwitchMaterial>(R.id.darkModeSwitch)
         val isDarkMode = prefs.getBoolean("dark_mode", false)
         darkModeSwitch.isChecked = isDarkMode
-        
+
         darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit().putBoolean("dark_mode", isChecked).apply()
             if (isChecked) {
@@ -34,6 +34,12 @@ class SettingsActivity : AppCompatActivity() {
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
+        }
+
+        val whatsPlayingSwitch = findViewById<SwitchMaterial>(R.id.whatsPlayingSwitch)
+        whatsPlayingSwitch.isChecked = prefs.getBoolean("whats_playing", false)
+        whatsPlayingSwitch.setOnCheckedChangeListener { _, isChecked ->
+            prefs.edit().putBoolean("whats_playing", isChecked).apply()
         }
 
         val versionName = packageManager.getPackageInfo(packageName, 0).versionName

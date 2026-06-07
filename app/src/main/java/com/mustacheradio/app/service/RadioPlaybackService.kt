@@ -22,6 +22,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.mustacheradio.app.MainActivity
+import com.mustacheradio.app.NowPlayingManager
 import com.mustacheradio.app.PlayHistoryManager
 import com.mustacheradio.app.R
 import com.mustacheradio.app.RadioStation
@@ -31,6 +32,8 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.audio.AudioAttributes
+import com.google.android.exoplayer2.metadata.Metadata
+import com.google.android.exoplayer2.metadata.icy.IcyInfo
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaLoadOptions
@@ -62,6 +65,9 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
     private lateinit var playHistoryManager: PlayHistoryManager
     private val mainHandler = Handler(Looper.getMainLooper())
 
+    // Last ICY StreamTitle received from the currently playing stream
+    private var lastIcyTitle: String? = null
+
     // Extracted so it can be re-attached after swapping exoPlayer for a promoted warm player
     private val playerListener = object : Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -78,6 +84,25 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
 
         override fun onPlayerError(error: com.google.android.exoplayer2.PlaybackException) {
             Log.e(TAG, "Player error [${error.errorCode}]: ${error.message}")
+        }
+
+        override fun onMetadata(metadata: Metadata) {
+            if (!isWhatsPlayingEnabled()) return
+            for (i in 0 until metadata.length()) {
+                val entry = metadata[i]
+                if (entry is IcyInfo) {
+                    val title = entry.title?.trim()?.takeIf { it.isNotEmpty() } ?: continue
+                    if (title == lastIcyTitle) return
+                    lastIcyTitle = title
+                    Log.d(TAG, "ICY metadata: $title")
+                    lastRequestedMediaId?.let { id ->
+                        Stations.BY_ID[id]?.let { station ->
+                            updateSessionMetadata(station, id, nowPlayingText = title)
+                        }
+                    }
+                    return
+                }
+            }
         }
     }
 
@@ -113,6 +138,15 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Keep MediaSession subtitle (lock screen / notification) in sync with now-playing cache
+        NowPlayingManager.serviceListeners["service"] = { stationId, text ->
+            if (stationId == lastRequestedMediaId) {
+                Stations.BY_ID[stationId]?.let { station ->
+                    updateSessionMetadata(station, stationId, nowPlayingText = text)
+                }
+            }
+        }
 
         playHistoryManager = PlayHistoryManager(this)
         createNotificationChannel()
@@ -166,6 +200,7 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
 
     override fun onDestroy() {
         super.onDestroy()
+        NowPlayingManager.serviceListeners.remove("service")
         try {
             CastContext.getSharedInstance(this)
                 .sessionManager
@@ -248,6 +283,7 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
 
         Log.d(TAG, "playStation: ${station.name}")
         lastRequestedMediaId = id
+        lastIcyTitle = null   // clear stale metadata from previous station
 
         playHistoryManager.recordPlay(id)
         mainHandler.post {
@@ -485,12 +521,28 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
         )
     }
 
-    private fun updateSessionMetadata(station: RadioStation, id: String) {
+    private fun isWhatsPlayingEnabled(): Boolean =
+        getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+            .getBoolean("whats_playing", false)
+
+    /**
+     * Update MediaSession metadata.  When [nowPlayingText] is provided (and the
+     * "What's Playing" feature is on) it replaces the station description in the
+     * subtitle slot — this is what Android Auto and the notification display.
+     */
+    private fun updateSessionMetadata(
+        station: RadioStation,
+        id: String,
+        nowPlayingText: String? = null
+    ) {
         val bitmap: Bitmap = BitmapFactory.decodeResource(resources, station.iconRes)
+        // Prefer the provided text, then fall back to the shared cache; use description if feature is off
+        val cachedNp = if (isWhatsPlayingEnabled()) nowPlayingText ?: NowPlayingManager.sharedCache[id] else null
+        val subtitle = cachedNp ?: station.description
         mediaSession.setMetadata(
             MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE,        station.name)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,       station.description)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,       subtitle)
                 .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID,     id)
                 .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,    bitmap)
                 .putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, bitmap)

@@ -9,7 +9,7 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 cd "$(dirname "$0")"
 
 echo "Building Mustache Radio..."
-./gradlew assembleDebug
+HOME=/home/amirn ./gradlew assembleDebug
 
 if [ $? -eq 0 ]; then
     APK=$(find app/build/outputs/apk/debug -name "*.apk" | head -1)
