@@ -6,7 +6,7 @@ Personal Israeli radio streaming app for Android.
 
 | Light | Dark |
 |-------|------|
-| ![Light mode](screenshots/screenshot_light.jpeg) | ![Dark mode](screenshots/screenshot_dark.jpeg) |
+| ![Light mode](screenshots/light.jpeg) | ![Dark mode](screenshots/dark.jpeg) |
 
 ## Features
 
