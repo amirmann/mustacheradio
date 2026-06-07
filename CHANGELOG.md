@@ -2,6 +2,15 @@
 
 All notable changes to Mustache Radio are documented here.
 
+## [6.4.0] — 2026-06-07
+### Fixed
+- **88FM intermittent start**: warm-up (promoted) player now re-enables audio focus handling when it becomes the main player; new warm-up cycle is delayed 10 s after promotion to prevent simultaneous connections to StreamTheWorld that confused the CDN.
+- **Car audio focus (Android Auto)**: `onPause`/`onPlay`/`onStop` now check `castSession.isConnected` instead of just non-null, so a stale/disconnected Cast session no longer blocks the ExoPlayer pause command. Also `onIsPlayingChanged` now always reports PAUSED to the MediaSession when a station is selected and audio focus is lost (e.g. YouTube Music taking over).
+- **Gradle wrapper**: `distributionUrl` was pointing to a local file path; corrected to the official Gradle 8.2 HTTPS URL so GitHub Actions and CI can build correctly.
+### Changed
+- Shell scripts (`build.sh`, `debug-phone.sh`, `emulator.sh`, `test.sh`) updated — removed all old AmiRadio references.
+- Screenshots added to README.
+
 ## [6.2.0] — 2026-06-05
 ### Fixed
 - **Cast play/pause for 102FM**: `playOnCast()` now always calls `stop()` on the remote client before `load()`, ensuring the Cast receiver is in a clean IDLE state. Fixes the issue where 102FM (and potentially other livecdn.biz streams) silently failed to start on first cast — requiring a manual pause→play cycle.

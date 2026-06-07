@@ -2,6 +2,12 @@
 
 Personal Israeli radio streaming app for Android.
 
+## Screenshots
+
+| Light | Dark |
+|-------|------|
+| ![Light mode](screenshots/screenshot_light.jpeg) | ![Dark mode](screenshots/screenshot_dark.jpeg) |
+
 ## Features
 
 - **8 stations**: Galatz, Galgalatz, 100FM, Eco 99FM, 88FM, Kan Bet, 103FM, 102FM

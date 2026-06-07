@@ -68,7 +68,10 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
             Log.d(TAG, "onIsPlayingChanged: $isPlaying")
             if (isPlaying) {
                 updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
-            } else if (exoPlayer.playbackState != Player.STATE_IDLE) {
+            } else if (lastRequestedMediaId != null) {
+                // Always report PAUSED when a station was selected — covers audio-focus
+                // loss from other apps (e.g. YouTube Music in the car) even when ExoPlayer
+                // transitions to IDLE instead of just setting playWhenReady=false.
                 updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
             }
         }
@@ -182,7 +185,7 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
 
         override fun onPlay() {
             val castSession = getCastSession()
-            if (castSession != null) {
+            if (castSession?.isConnected == true) {
                 val client = castSession.remoteMediaClient
                 val playerState = client?.mediaStatus?.playerState ?: MediaStatus.PLAYER_STATE_IDLE
                 if (playerState == MediaStatus.PLAYER_STATE_PAUSED) {
@@ -201,7 +204,7 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
 
         override fun onPause() {
             val castSession = getCastSession()
-            if (castSession != null) {
+            if (castSession?.isConnected == true) {
                 // Live streams don't support Cast pause; stop so play can reload cleanly
                 castSession.remoteMediaClient?.stop()
             } else {
@@ -211,8 +214,12 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
         }
 
         override fun onStop() {
-            getCastSession()?.remoteMediaClient?.stop()
-                ?: run { exoPlayer.stop() }
+            val castSession = getCastSession()
+            if (castSession?.isConnected == true) {
+                castSession.remoteMediaClient?.stop()
+            } else {
+                exoPlayer.stop()
+            }
             updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
         }
 
@@ -317,6 +324,13 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
             exoPlayer.release()
             exoPlayer = promoted
             exoPlayer.addListener(playerListener)
+            // Warm-up players are created with handleAudioFocus=false to avoid
+            // interfering with the main player. Re-enable it now that this IS the main player.
+            val audioAttrs = com.google.android.exoplayer2.audio.AudioAttributes.Builder()
+                .setUsage(C.USAGE_MEDIA)
+                .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+                .build()
+            exoPlayer.setAudioAttributes(audioAttrs, /* handleAudioFocus= */ true)
             exoPlayer.volume = 1.0f
             notificationManager.setPlayer(exoPlayer)
             updateSessionMetadata(station, id)

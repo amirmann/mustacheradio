@@ -1,69 +1,33 @@
 #!/bin/bash
-
-# Quick Start Script for AmiRadio v1.6
+# Quick start script for Mustache Radio testing
 
 export ANDROID_HOME=~/android-sdk
-export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools
 
-echo "🚀 Starting AmiRadio Test Environment"
-echo "======================================"
-echo ""
+AVD_NAME="MustacheRadio_Test"
 
-# Launch emulator in background
-echo "1️⃣  Launching emulator (this takes 30-60 seconds)..."
-nohup emulator -avd AmiRadio_Test -no-snapshot-load -gpu swiftshader_indirect > /tmp/emulator.log 2>&1 &
+echo "Starting Mustache Radio Test Environment"
+echo "========================================="
+
+echo "1. Starting emulator ($AVD_NAME)..."
+nohup emulator -avd "$AVD_NAME" -no-snapshot-load -gpu swiftshader_indirect > /tmp/emulator.log 2>&1 &
 EMULATOR_PID=$!
+echo "Emulator PID: $EMULATOR_PID"
 
-echo "   Emulator starting (PID: $EMULATOR_PID)"
-echo "   Waiting for device..."
-
-# Wait for device
+echo "2. Waiting for device to be ready..."
 adb wait-for-device
-echo "   ✅ Device detected!"
+sleep 5
 
-# Wait for boot to complete
-echo "   Waiting for boot to complete..."
-while [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]; do
-    sleep 2
-    echo -n "."
-done
-echo ""
-echo "   ✅ Emulator fully booted!"
-echo ""
+echo "3. Building APK..."
+./gradlew assembleDebug
 
-# Install APK
-echo "2️⃣  Installing AmiRadio v1.6..."
-APK="app/build/outputs/apk/debug/AmiRadio-v1.6-debug-debug.apk"
+echo "4. Installing APK..."
+APK=$(find app/build/outputs/apk/debug -name "*.apk" | head -1)
+adb install -r "$APK"
 
-if [ -f "$APK" ]; then
-    adb install -r "$APK"
-    echo ""
-    echo "   ✅ App installed!"
-else
-    echo "   ❌ APK not found. Build it first with: ./gradlew assembleDebug"
-    exit 1
-fi
+echo "5. Launching app..."
+adb shell am start -n com.mustacheradio.app.debug/.MainActivity
 
 echo ""
-echo "3️⃣  Launching app..."
-adb shell am start -n com.amiradio.app/.MainActivity
-sleep 2
-
-echo ""
-echo "======================================"
-echo "✅ READY TO TEST!"
-echo "======================================"
-echo ""
-echo "📱 The emulator window should open showing AmiRadio"
-echo "🎵 Tap a station to test playback"
-echo ""
-echo "📊 To view logs in real-time, open a new terminal and run:"
-echo "   adb logcat | grep -E '(MainActivity|RadioPlaybackService)'"
-echo ""
-echo "🔊 IMPORTANT: Check emulator volume!"
-echo "   - Press volume up on emulator (or use host volume keys)"
-echo "   - Look for 'WARNING: System volume is ZERO!' in logs"
-echo ""
-echo "❌ To stop the emulator:"
-echo "   adb emu kill"
-echo ""
+echo "App launched! Check the emulator window."
+echo "To view logs: adb logcat | grep -E '(MainActivity|RadioPlaybackService)'"

@@ -42,7 +42,7 @@ if adb devices 2>&1 | grep -q "daemon"; then
         echo "============================"
         echo ""
         echo "Now you can:"
-        echo "  1. Install app: adb install -r app/build/outputs/apk/debug/AmiRadio-v1.8-debug-debug.apk"
+        echo "  1. Install app: adb install -r app/build/outputs/apk/debug/MustacheRadio-v<version>.apk"
         echo "  2. View logs: adb logcat | grep -E '(MainActivity|RadioPlaybackService)'"
         echo ""
         echo "To make this permanent, add this to ~/.bashrc:"

@@ -92,8 +92,14 @@ class PrerollWarmer(private val context: Context) {
         val player = readyPlayers.remove(stationId)
         if (player != null) {
             Log.d(TAG, "[$stationId] Promoted! Restarting warm-up for next time")
-            // Start a fresh warm-up immediately so the next tap is also ad-free
-            STATIONS[stationId]?.let { baseUrl -> startWarmup(stationId, buildUrl(baseUrl)) }
+            // Delay the new warm-up by 10 s so the promoted player and the new warmer
+            // don't open simultaneous connections to the same StreamTheWorld URL — that
+            // can confuse the CDN and cause one of them to not play.
+            mainHandler.postDelayed({
+                if (!warmingPlayers.containsKey(stationId) && !readyPlayers.containsKey(stationId)) {
+                    STATIONS[stationId]?.let { baseUrl -> startWarmup(stationId, buildUrl(baseUrl)) }
+                }
+            }, 10_000)
             return player
         }
 
