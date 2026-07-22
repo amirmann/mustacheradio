@@ -2,6 +2,11 @@
 
 All notable changes to Mustache Radio are documented here.
 
+## [6.8.0] — 2026-07-22
+### Fixed
+- **102FM stream**: updated stream URL to `cdn88.mediacast.co.il` — the previous `alma.mediacast.co.il` host was returning 404.
+- **Android Auto — What's Playing**: now-playing subtitles now update in Android Auto even when the phone app is not open. `RadioPlaybackService` starts its own `NowPlayingManager` instance so HTTP-based stations (102FM, 100FM, eco99, 103FM) poll independently of the Activity lifecycle.
+
 ## [6.7.0] — 2026-06-07
 ### Added
 - **What's Playing — Galatz & Galgalatz**: Both GLZ stations now display live programme/song info. The implementation loads each station's homepage in an invisible WebView (bypassing Incapsula bot protection), waits for Angular to render, then extracts the current programme via DOM selectors:
