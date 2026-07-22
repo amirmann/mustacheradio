@@ -70,11 +70,9 @@ object Stations {
             id              = "102fm",
             name            = "102FM - Radio Tel Aviv",
             description     = "Tel Aviv's Music Station",
-            // Use the direct Icecast URL — the livecdn.biz address returns a 302 redirect
-            // which the Cast Default Receiver does not follow reliably.
-            streamUrl       = "https://alma.mediacast.co.il/102fm-tlv/102fm_aac/icecast.audio",
+            streamUrl       = "https://cdn88.mediacast.co.il/102-tlv-live/102fm_aac/icecast.audio",
             iconRes         = R.drawable.ic_102fm,
-            castContentType = "audio/aacp"   // server confirmed: HE-AAC (AAC+) over Icecast
+            castContentType = "audio/aacp"   // HE-AAC (AAC+) over Icecast
         )
     )
 
