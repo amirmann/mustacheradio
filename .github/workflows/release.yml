@@ -39,11 +39,23 @@ jobs:
           echo "PATH=$APK" >> $GITHUB_OUTPUT
           echo "NAME=$(basename $APK)" >> $GITHUB_OUTPUT
 
+      - name: Extract release notes from CHANGELOG
+        id: notes
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          # Extract section between this version header and the next one
+          NOTES=$(awk "/^## \[$VERSION\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
+          echo "NOTES<<EOF" >> $GITHUB_OUTPUT
+          echo "## What's new in ${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Mustache Radio ${{ github.ref_name }}"
-          body_path: CHANGELOG.md
+          name: "${{ github.ref_name }}"
+          body: ${{ steps.notes.outputs.NOTES }}
           files: ${{ steps.apk.outputs.PATH }}
           draft: false
           prerelease: false
