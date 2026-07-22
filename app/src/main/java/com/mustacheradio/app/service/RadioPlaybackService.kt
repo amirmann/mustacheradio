@@ -63,6 +63,7 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
     private lateinit var exoPlayer: ExoPlayer
     private lateinit var notificationManager: PlayerNotificationManager
     private lateinit var playHistoryManager: PlayHistoryManager
+    private lateinit var nowPlayingManager: NowPlayingManager
     private val mainHandler = Handler(Looper.getMainLooper())
 
     // Last ICY StreamTitle received from the currently playing stream
@@ -148,6 +149,15 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
             }
         }
 
+        // Start polling for now-playing data in the service so Android Auto gets
+        // updated subtitles even when the phone app is not open.
+        // No Activity is set — WebView-based stations (KAN/GLZ) gracefully return null
+        // without Activity context; HTTP-based stations work fine.
+        nowPlayingManager = NowPlayingManager()
+        if (isWhatsPlayingEnabled()) {
+            nowPlayingManager.start()
+        }
+
         playHistoryManager = PlayHistoryManager(this)
         createNotificationChannel()
 
@@ -201,6 +211,7 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
     override fun onDestroy() {
         super.onDestroy()
         NowPlayingManager.serviceListeners.remove("service")
+        nowPlayingManager.release()
         try {
             CastContext.getSharedInstance(this)
                 .sessionManager
