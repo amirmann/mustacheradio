@@ -2,6 +2,11 @@
 
 All notable changes to Mustache Radio are documented here.
 
+## [6.9.1] — 2026-09-22
+### Fixed
+- **Android Auto — voice actions**: `RadioPlaybackService` now implements `onPlayFromSearch`, so "Hey Google, play Galgalatz on Mustache Radio" (and similar) resolves to a station instead of being ignored; an empty/unmatched query falls back to the most recently played station. Required for Android Auto's Media category car-quality review (VC-1).
+- **Android Auto / status bar — notification icon**: the playback notification used the full-color launcher photo as its small icon. Android renders small icons from the alpha channel only, so this rendered as a solid blob instead of a recognizable icon on the status bar and in Android Auto's media widget. Replaced with a proper monochrome vector icon (`ic_stat_radio`), satisfying Android Auto's white-icon-set requirement (VD-2).
+
 ## [6.9.0] — 2026-09-22
 ### Added
 - **Play Store publishing**: release builds are now signed (via a gitignored `keystore.properties`, populated from CI secrets) and CI builds an App Bundle alongside the APK. The AAB is uploaded to the Play Store via Gradle Play Publisher when configured; the signed APK still ships on every GitHub Release. See `PLAY_STORE.md` for one-time setup.

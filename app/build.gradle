@@ -20,8 +20,8 @@ android {
         applicationId "com.mustacheradio.app"
         minSdk 24
         targetSdk 34
-        versionCode 55
-        versionName "6.9.0"
+        versionCode 56
+        versionName "6.9.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

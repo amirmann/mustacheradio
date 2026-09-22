@@ -229,6 +229,10 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
     private val mediaSessionCallback = object : MediaSessionCompat.Callback() {
         override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) = playStation(mediaId)
 
+        // Voice actions ("Hey Google, play Galgalatz on Mustache Radio"). An empty/no-match
+        // query still resolves to a station per Android Auto's voice action guidelines.
+        override fun onPlayFromSearch(query: String?, extras: Bundle?) = playStation(resolveStationForSearch(query))
+
         override fun onPlay() {
             val castSession = getCastSession()
             if (castSession?.isConnected == true) {
@@ -479,6 +483,18 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
             .sortedByDescending { playHistoryManager.getLastPlayedTimestamp(it.id) }
             .map { it.id }
 
+    // Matches a spoken query against station name/id; falls back to the most
+    // recently played station (or the first one) when the query is empty or unmatched.
+    private fun resolveStationForSearch(query: String?): String {
+        val q = query?.trim()?.lowercase()
+        val match = q?.takeIf { it.isNotEmpty() }?.let { needle ->
+            Stations.ALL.firstOrNull { station ->
+                station.name.lowercase().contains(needle) || station.id.lowercase().contains(needle)
+            }
+        }
+        return match?.id ?: getSortedStationIds().first()
+    }
+
     private fun skipToAdjacentStation(forward: Boolean) {
         val ids = Stations.ALL.map { it.id }
         val currentIndex = ids.indexOf(getCurrentMediaId())
@@ -574,7 +590,7 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Mustache Radio")
             .setContentText("Radio service is running")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_stat_radio)
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
@@ -590,6 +606,7 @@ class RadioPlaybackService : MediaBrowserServiceCompat() {
 
     private fun setupNotification() {
         notificationManager = PlayerNotificationManager.Builder(this, NOTIFICATION_ID, CHANNEL_ID)
+            .setSmallIconResourceId(R.drawable.ic_stat_radio)
             .setMediaDescriptionAdapter(object : PlayerNotificationManager.MediaDescriptionAdapter {
                 override fun getCurrentContentTitle(player: Player): CharSequence =
                     mediaSession.controller.metadata?.getString(MediaMetadataCompat.METADATA_KEY_TITLE) ?: "Mustache Radio"
