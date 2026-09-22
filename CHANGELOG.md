@@ -2,6 +2,12 @@
 
 All notable changes to Mustache Radio are documented here.
 
+## [6.9.0] — 2026-09-22
+### Added
+- **Play Store publishing**: release builds are now signed (via a gitignored `keystore.properties`, populated from CI secrets) and CI builds an App Bundle alongside the APK. The AAB is uploaded to the Play Store via Gradle Play Publisher when configured; the signed APK still ships on every GitHub Release. See `PLAY_STORE.md` for one-time setup.
+### Fixed
+- **Release build**: added the missing `compileOnly` Wear OS dependency required by `com.google.android.support:wearable`, fixing a lint-vital failure that previously forced CI to ship debug-signed APKs instead of release builds.
+
 ## [6.8.0] — 2026-07-22
 ### Fixed
 - **102FM stream**: updated stream URL to `cdn88.mediacast.co.il` — the previous `alma.mediacast.co.il` host was returning 404.

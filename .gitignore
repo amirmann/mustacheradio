@@ -41,6 +41,8 @@ out/
 # Keystore files
 *.jks
 *.keystore
+keystore.properties
+play-publisher-key.json
 
 # Log Files
 *.log
