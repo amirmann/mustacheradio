@@ -2,6 +2,10 @@
 
 All notable changes to Mustache Radio are documented here.
 
+## [6.9.2] — 2026-09-24
+### Changed
+- **Release workflow**: GitHub Releases now also attach the `.aab` App Bundle alongside the `.apk`, so it can be downloaded and uploaded to Play Console manually without needing local build tooling.
+
 ## [6.9.1] — 2026-09-22
 ### Fixed
 - **Android Auto — voice actions**: `RadioPlaybackService` now implements `onPlayFromSearch`, so "Hey Google, play Galgalatz on Mustache Radio" (and similar) resolves to a station instead of being ignored; an empty/unmatched query falls back to the most recently played station. Required for Android Auto's Media category car-quality review (VC-1).

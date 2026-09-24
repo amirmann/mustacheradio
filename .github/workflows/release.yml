@@ -52,6 +52,12 @@ jobs:
           echo "PATH=$APK" >> $GITHUB_OUTPUT
           echo "NAME=$(basename $APK)" >> $GITHUB_OUTPUT
 
+      - name: Locate AAB
+        id: aab
+        run: |
+          AAB=$(find app/build/outputs/bundle/release -name "*.aab" | head -1)
+          echo "PATH=$AAB" >> $GITHUB_OUTPUT
+
       - name: Extract release notes from CHANGELOG
         id: notes
         run: |
@@ -69,7 +75,9 @@ jobs:
         with:
           name: "${{ github.ref_name }}"
           body: ${{ steps.notes.outputs.NOTES }}
-          files: ${{ steps.apk.outputs.PATH }}
+          files: |
+            ${{ steps.apk.outputs.PATH }}
+            ${{ steps.aab.outputs.PATH }}
           draft: false
           prerelease: false
 
