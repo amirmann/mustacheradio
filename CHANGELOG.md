@@ -2,6 +2,10 @@
 
 All notable changes to Mustache Radio are documented here.
 
+## [6.9.6] — 2026-09-24
+### Fixed
+- **versionCode**: jumped from 59 to 100 — Play Console permanently burns a versionCode the moment it's uploaded to any release, even a discarded draft, so every retry needs a brand new one. Jumping ahead leaves headroom.
+
 ## [6.9.5] — 2026-09-24
 ### Fixed
 - **Version mismatch**: `versionName` had drifted out of sync with the git tag (APK was labeled 6.9.3 under tag v6.9.4). Bumped `versionCode`/`versionName` and aligned them with the tag going forward.
