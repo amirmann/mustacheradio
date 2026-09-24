@@ -14,6 +14,8 @@ import android.view.KeyEvent
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mustacheradio.app.databinding.ActivityMainBinding
 import com.mustacheradio.app.service.RadioPlaybackService
@@ -103,6 +105,12 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(0, bars.top, 0, bars.bottom)
+            insets
+        }
 
         binding.settingsButton.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
 
