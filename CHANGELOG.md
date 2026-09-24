@@ -2,6 +2,10 @@
 
 All notable changes to Mustache Radio are documented here.
 
+## [6.9.3] — 2026-09-24
+### Fixed
+- **Play Store target API requirement**: bumped `compileSdk`/`targetSdk` from 34 to 36 — Play Console now rejects new releases below API 36. Also bumped `versionCode` (58) since 57 was already consumed by a discarded upload attempt.
+
 ## [6.9.2] — 2026-09-24
 ### Changed
 - **Release workflow**: GitHub Releases now also attach the `.aab` App Bundle alongside the `.apk`, so it can be downloaded and uploaded to Play Console manually without needing local build tooling.
