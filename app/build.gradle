@@ -14,12 +14,12 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace 'com.mustacheradio.app'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.mustacheradio.app"
         minSdk 24
-        targetSdk 34
+        targetSdk 36
         versionCode 57
         versionName "6.9.2"
 
