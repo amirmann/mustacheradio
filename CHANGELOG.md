@@ -2,6 +2,10 @@
 
 All notable changes to Mustache Radio are documented here.
 
+## [6.9.5] — 2026-09-24
+### Fixed
+- **Version mismatch**: `versionName` had drifted out of sync with the git tag (APK was labeled 6.9.3 under tag v6.9.4). Bumped `versionCode`/`versionName` and aligned them with the tag going forward.
+
 ## [6.9.3] — 2026-09-24
 ### Fixed
 - **Play Store target API requirement**: bumped `compileSdk`/`targetSdk` from 34 to 36 — Play Console now rejects new releases below API 36. Also bumped `versionCode` (58) since 57 was already consumed by a discarded upload attempt.
